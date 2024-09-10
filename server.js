@@ -1,6 +1,8 @@
 //dependencias
 const express = require("express");
 const app = express();
+const fs = require("fs");
+const path = require("path");
 
 //puerto
 const port = process.env.port || 3000;
@@ -9,7 +11,7 @@ app.listen(port, () => {
 });
 
 //manejar datos json
-app.use(express.json);
+app.use(express.json());
 
 //rutas DB
 const getDb = () => {
@@ -48,16 +50,18 @@ app.get("/usuarios/:id", (req, res) => {
 });
 
 //crear
-app.post("/usuarios", (res, req) => {
+app.post("/usuarios", (req, res) => {
   const newUser = req.body;
   const db = getDb();
-  const maxID = db.usuarios.reduce((max, user) => Math.max(max, user.id), 0);
 
-  nuevoUsuario.id = maxId + 1;
-  db.usuarios.push(nuevoUsuario);
+  // Asegúrate de que db.usuarios esté definido y sea un array
+  const maxId = (db.usuarios || []).reduce((max, user) => Math.max(max, user.id), 0);
+
+  newUser.id = maxId + 1;
+  db.usuarios.push(newUser);
   saveDb(db);
 
-  res.status(201).json(nuevoUsuario);
+  res.status(201).json(newUser);
 });
 
 // Actualizar un usuario
